@@ -3,111 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LuauGuard | Maintance</title>
+    <title>LuauGuard | Maintenance</title>
     <style>
-        :root {
-            --bg-color: #050505;
-            --text-color: #ffffff;
-            --text-muted: #a1a1aa;
-            --accent: #ffffff; 
-            --box-bg: #111111;
-            --border-color: #27272a;
-        }
-
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            cursor: none !important;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #050505;
+            --text: #ffffff;
+            --muted: #a1a1aa;
+            --card: #111111;
+            --border: #27272a;
         }
 
         body, html {
             height: 100%;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background: var(--bg);
+            color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
-            background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #050505 70%);
-            perspective: 1000px;
+            background: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #050505 90%);
         }
 
-        #cursor-follower {
+        @media (pointer: fine) {
+            body, button, div {
+                cursor: none;
+            }
+        }
+
+        #cursor {
             position: fixed;
-            width: 8px;
-            height: 8px;
-            background-color: var(--text-color);
+            width: 6px;
+            height: 6px;
+            background: white;
             border-radius: 50%;
             pointer-events: none;
             z-index: 9999;
             mix-blend-mode: difference;
-            transition: transform 0.1s ease-out, box-shadow 0.2s ease;
+            transition: transform 0.1s ease;
             transform: translate(-50%, -50%);
         }
 
-        #cursor-follower.hovering {
-            transform: translate(-50%, -50%) scale(5);
-            background-color: rgba(255, 255, 255, 0.1);
-            backdrop-filter: invert(100%);
+        #cursor.hover {
+            transform: translate(-50%, -50%) scale(4);
+            background: rgba(255,255,255,0.15);
         }
 
         #loader {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color);
+            inset: 0;
+            background: var(--bg);
             display: flex;
-            justify-content: center;
             align-items: center;
-            z-index: 999;
-            transition: opacity 1s ease, filter 1s ease;
-        }
-
-        .advanced-typing {
-            display: flex;
-            align-items: baseline;
             justify-content: center;
-            gap: 2px;
-            transition: text-shadow 0.6s ease;
+            z-index: 1000;
+            transition: opacity 0.8s ease;
         }
 
-        .type-char {
-            display: inline-block;
-            font-size: 4rem;
+        .typing {
+            display: flex;
+            gap: 2px;
+        }
+
+        .char {
+            font-size: clamp(2.5rem, 12vw, 4.5rem);
             font-weight: 800;
             letter-spacing: -0.04em;
-            background: linear-gradient(180deg, #ffffff 0%, #d4d4d8 100%);
+            background: linear-gradient(180deg, #fff, #b0b0b8);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
             opacity: 0;
             filter: blur(8px);
             transform: translateY(20px);
-            animation: charFadeIn 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
-            animation-delay: calc(var(--i) * 0.08s);
+            animation: fadeUp 0.35s forwards;
+            animation-delay: calc(var(--i) * 0.07s);
         }
 
-        @keyframes charFadeIn { 
-            0% { opacity: 0; filter: blur(8px); transform: translateY(20px); } 
-            100% { opacity: 1; filter: blur(0); transform: translateY(0); } 
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                filter: blur(0);
+                transform: translateY(0);
+            }
         }
 
-        #loader.glow-phase .advanced-typing {
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 
-                         0 0 30px rgba(255, 255, 255, 0.2);
+        #loader.glow .typing {
+            text-shadow: 0 0 12px rgba(255,255,255,0.4);
         }
 
-        #main-content {
+        #main {
             opacity: 0;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             height: 100%;
             padding: 2rem;
-            transform: scale(0.95) translateY(20px);
-            transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: scale(0.96) translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
         }
 
-        #main-content.approach {
+        #main.visible {
             opacity: 1;
             transform: scale(1) translateY(0);
         }
@@ -115,276 +114,289 @@
         .container {
             max-width: 680px;
             text-align: center;
-            z-index: 10;
         }
 
-        .hero {
-            font-size: 4rem;
+        h1 {
+            font-size: clamp(2.5rem, 10vw, 4rem);
             font-weight: 800;
             letter-spacing: -0.04em;
             margin-bottom: 1rem;
-            background: linear-gradient(180deg, #ffffff 0%, #d4d4d8 100%);
+            background: linear-gradient(180deg, #fff, #c0c0ca);
+            background-clip: text;
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: transparent;
         }
 
-        .description {
-            font-size: 1.15rem;
-            line-height: 1.7;
-            color: var(--text-muted);
-            margin-bottom: 3.5rem;
+        .desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--muted);
+            margin-bottom: 3rem;
         }
 
-        .strong-text {
-            color: #ffffff;
-            font-weight: 600;
+        .desc span {
+            color: white;
+            font-weight: 500;
         }
 
-        .status-card {
-            background-color: var(--box-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 2.5rem;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             transform-style: preserve-3d;
-            transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1);
-            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, border-color 0.3s ease;
-            will-change: transform;
         }
 
-        .status-header {
-            font-size: 0.85rem;
+        .card-header {
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.2em;
-            color: var(--text-muted);
+            color: var(--muted);
             margin-bottom: 1.5rem;
-            font-weight: 700;
-            transform: translateZ(30px);
-            display: inline-block;
-        }
-
-        .progress-container {
-            width: 100%;
-            height: 6px;
-            background-color: #27272a;
-            border-radius: 999px;
-            overflow: hidden;
-            margin-bottom: 1.5rem;
-            transform: translateZ(40px);
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: #ffffff;
-            width: 0%; 
-            border-radius: 999px;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-            transition: width 1.5s cubic-bezier(0.65, 0, 0.35, 1);
-        }
-
-        .status-details {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            transform: translateZ(30px);
-        }
-
-        .duration {
-            color: #ffffff;
             font-weight: 600;
         }
 
-        .audio-toggle {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: rgba(17, 17, 17, 0.8);
-            border: 1px solid var(--border-color);
+        .progress-wrap {
+            width: 100%;
+            height: 4px;
+            background: #27272a;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 1.5s ease;
+        }
+
+        .details {
+            display: flex;
+            justify-content: space-between;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .eta {
             color: white;
-            width: 45px;
-            height: 45px;
+            font-weight: 500;
+        }
+
+        .audio-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(17,17,17,0.8);
+            border: 1px solid var(--border);
+            color: white;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 100;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(4px);
+            transition: all 0.2s;
             cursor: pointer;
         }
 
-        .audio-toggle:hover {
-            background: #27272a;
-            transform: scale(1.1);
+        .audio-btn:hover {
+            background: #222;
+            transform: scale(1.05);
         }
 
-        .audio-toggle svg {
-            width: 20px;
-            height: 20px;
+        .audio-btn svg {
+            width: 18px;
+            height: 18px;
             fill: currentColor;
         }
 
-        @media (max-width: 480px) {
-            .type-char { font-size: 2.5rem; }
-            .hero { font-size: 3rem; }
-            .description { font-size: 1rem; }
-            .status-card { transform: none !important; }
-            * { cursor: auto !important; }
-            #cursor-follower { display: none; }
+        @media (max-width: 560px) {
+            .card {
+                transform: none !important;
+            }
+            .audio-btn {
+                width: 40px;
+                height: 40px;
+                bottom: 16px;
+                right: 16px;
+            }
+            body, button {
+                cursor: auto;
+            }
+            #cursor {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div id="cursor-follower"></div>
+<div id="cursor"></div>
 
-    <div id="loader">
-        <div id="advancedTypewriter" class="advanced-typing"></div>
-    </div>
+<div id="loader">
+    <div class="typing" id="typing"></div>
+</div>
 
-    <div id="main-content">
-        <div class="container">
-            <h1 class="hero">LuauGuard</h1>
-            <p class="description">
-                The next generation best private obfuscator for Roblox Luau. <br/>
-                The next Luraph. <span class="strong-text">LuauGuard Team Forever.</span>
-            </p>
-
-            <div class="status-card" id="status-card">
-                <div class="status-header">In development</div>
-                <div class="progress-container">
-                    <div class="progress-bar" id="status-progress"></div>
-                </div>
-                <div class="status-details">
-                    <span>Maintance</span>
-                    <span class="duration">~ 4 Weeks</span>
-                </div>
+<div id="main">
+    <div class="container">
+        <h1>LuauGuard</h1>
+        <p class="desc">
+            The next generation private obfuscator for Roblox Luau.<br>
+            The next Luraph. <span>LuauGuard Team Forever.</span>
+        </p>
+        <div class="card" id="card">
+            <div class="card-header">In development</div>
+            <div class="progress-wrap">
+                <div class="progress" id="progress"></div>
+            </div>
+            <div class="details">
+                <span>Maintenance</span>
+                <span class="eta">~ 4 Weeks</span>
             </div>
         </div>
     </div>
+</div>
 
-    <audio id="bg-music" loop preload="auto">
-        <source src="https://cdn.pixabay.com/download/audio/2022/05/16/audio_276a09ca29.mp3?filename=crickets-and-insects-in-the-night-9092.mp3" type="audio/mpeg">
-    </audio>
+<audio id="audio" loop preload="none">
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/16/audio_276a09ca29.mp3?filename=crickets-and-insects-in-the-night-9092.mp3" type="audio/mpeg">
+</audio>
 
-    <button class="audio-toggle" id="audio-toggle" title="Toggle Sound">
-        <svg id="icon-muted" viewBox="0 0 24 24">
-            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
-        </svg>
-        <svg id="icon-playing" viewBox="0 0 24 24" style="display: none;">
-            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-        </svg>
-    </button>
+<button class="audio-btn" id="audioBtn">
+    <svg viewBox="0 0 24 24" id="iconMute">
+        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+    </svg>
+    <svg viewBox="0 0 24 24" id="iconPlay" style="display:none">
+        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+    </svg>
+</button>
 
-    <script>
-        const follower = document.getElementById('cursor-follower');
-        document.addEventListener('mousemove', (e) => {
-            follower.style.left = e.clientX + 'px';
-            follower.style.top = e.clientY + 'px';
+<script>
+    (function() {
+        const cursor = document.getElementById('cursor');
+        if (cursor && window.matchMedia('(pointer: fine)').matches) {
+            let mx = 0, my = 0, cx = 0, cy = 0;
+            document.addEventListener('mousemove', (e) => {
+                mx = e.clientX;
+                my = e.clientY;
+            });
+            function animate() {
+                cx += (mx - cx) * 0.25;
+                cy += (my - cy) * 0.25;
+                cursor.style.left = cx + 'px';
+                cursor.style.top = cy + 'px';
+                requestAnimationFrame(animate);
+            }
+            animate();
+            
+            const hoverTargets = document.querySelectorAll('.card, .audio-btn');
+            hoverTargets.forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+            });
+        }
+
+        const typingContainer = document.getElementById('typing');
+        const text = 'LuauGuard';
+        typingContainer.innerHTML = '';
+        text.split('').forEach((ch, i) => {
+            const span = document.createElement('span');
+            span.textContent = ch;
+            span.className = 'char';
+            span.style.setProperty('--i', i);
+            typingContainer.appendChild(span);
         });
 
-        const interactables = document.querySelectorAll('.status-card, .audio-toggle');
-        interactables.forEach(el => {
-            el.addEventListener('mouseenter', () => follower.classList.add('hovering'));
-            el.addEventListener('mouseleave', () => follower.classList.remove('hovering'));
-        });
-
-        const audio = document.getElementById('bg-music');
-        const audioBtn = document.getElementById('audio-toggle');
-        const iconMuted = document.getElementById('icon-muted');
-        const iconPlaying = document.getElementById('icon-playing');
-
-        audio.volume = 0.4;
+        const loader = document.getElementById('loader');
+        const mainEl = document.getElementById('main');
+        const progressBar = document.getElementById('progress');
         
-        function initAudio() {
-            audio.play().catch(() => {});
-            document.removeEventListener('click', initAudio);
-            document.removeEventListener('touchstart', initAudio);
+        const typingDuration = text.length * 70 + 400;
+        setTimeout(() => {
+            loader.classList.add('glow');
+        }, typingDuration - 200);
+        
+        setTimeout(() => {
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 800);
+            mainEl.classList.add('visible');
+            setTimeout(() => {
+                progressBar.style.width = '15%';
+            }, 500);
+        }, typingDuration + 200);
+
+        const card = document.getElementById('card');
+        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        if (card && !isTouch) {
+            let targetX = 0, targetY = 0, curX = 0, curY = 0;
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const cx = rect.width / 2;
+                const cy = rect.height / 2;
+                targetY = ((x - cx) / cx) * 8;
+                targetX = ((y - cy) / cy) * -6;
+                card.style.transition = 'none';
+            });
+            card.addEventListener('mouseleave', () => {
+                targetX = 0;
+                targetY = 0;
+                card.style.transition = 'transform 0.4s ease';
+                card.style.boxShadow = '';
+                card.style.borderColor = '';
+            });
+            function update3d() {
+                curX += (targetX - curX) * 0.15;
+                curY += (targetY - curY) * 0.15;
+                card.style.transform = `perspective(800px) rotateX(${curX}deg) rotateY(${curY}deg) scale3d(1.01, 1.01, 1)`;
+                requestAnimationFrame(update3d);
+            }
+            update3d();
+        }
+
+        const audio = document.getElementById('audio');
+        const btn = document.getElementById('audioBtn');
+        const muteIcon = document.getElementById('iconMute');
+        const playIcon = document.getElementById('iconPlay');
+        
+        audio.volume = 0.35;
+        
+        let audioStarted = false;
+        function tryAutoPlay() {
+            audio.play().then(() => {
+                audioStarted = true;
+                if (muteIcon && playIcon) {
+                    muteIcon.style.display = 'none';
+                    playIcon.style.display = 'block';
+                }
+            }).catch(() => {});
+            document.removeEventListener('click', tryAutoPlay);
+            document.removeEventListener('touchstart', tryAutoPlay);
         }
         
-        document.addEventListener('click', initAudio);
-        document.addEventListener('touchstart', initAudio);
-
-        audioBtn.addEventListener('click', (e) => {
+        document.addEventListener('click', tryAutoPlay);
+        document.addEventListener('touchstart', tryAutoPlay);
+        
+        btn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (audio.paused) {
                 audio.play();
-                iconMuted.style.display = 'none';
-                iconPlaying.style.display = 'block';
+                muteIcon.style.display = 'none';
+                playIcon.style.display = 'block';
             } else {
                 audio.pause();
-                iconMuted.style.display = 'block';
-                iconPlaying.style.display = 'none';
+                muteIcon.style.display = 'block';
+                playIcon.style.display = 'none';
             }
         });
-
-        const card = document.getElementById('status-card');
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left; 
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const rotateX = ((y - centerY) / centerY) * -10; 
-            const rotateY = ((x - centerX) / centerX) * 10;
-            
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-            card.style.boxShadow = `0 20px 50px rgba(0, 0, 0, 0.7)`;
-            card.style.borderColor = '#3f3f46';
-            card.style.transition = 'none'; 
-        });
-
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
-            card.style.boxShadow = `0 10px 40px rgba(0, 0, 0, 0.5)`;
-            card.style.borderColor = '#27272a';
-            card.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, border-color 0.3s ease'; 
-        });
-
-        const textToType = "LuauGuard";
-        const container = document.getElementById("advancedTypewriter");
-        const loader = document.getElementById('loader');
-        const mainContent = document.getElementById('main-content');
-        const progressBar = document.getElementById('status-progress');
-
-        function runAdvancedTyping() {
-            container.innerHTML = '';
-            
-            textToType.split('').forEach((ch, i) => {
-                const span = document.createElement('span');
-                span.textContent = ch === ' ' ? '\u00A0' : ch;
-                span.className = 'type-char';
-                span.style.setProperty('--i', i);
-                container.appendChild(span);
-            });
-
-            const timeToFinishTyping = (textToType.length * 80) + 350;
-            setTimeout(startTransition, timeToFinishTyping + 300); 
-        }
-
-        function startTransition() {
-            loader.classList.add('glow-phase');
-
-            setTimeout(() => {
-                loader.style.opacity = '0';
-                loader.style.filter = 'blur(15px)'; 
-
-                setTimeout(() => loader.style.display = 'none', 1000); 
-
-                mainContent.classList.add('approach');
-                
-                setTimeout(() => {
-                    progressBar.style.width = '15%'; 
-                }, 600);
-
-            }, 800); 
-        }
-
-        window.addEventListener('load', () => {
-            setTimeout(runAdvancedTyping, 300); 
-        });
-    </script>
+    })();
+</script>
 </body>
 </html>
