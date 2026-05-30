@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuauGuard | Initializing</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-color: #ffffff;
+            --text-muted: #a1a1aa;
+            --accent: #ffffff; 
+            --box-bg: #111111;
+            --border-color: #27272a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            cursor: none !important;
+        }
+
+        body, html {
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #050505 70%);
+            perspective: 1000px;
+        }
+
+        #cursor-follower {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background-color: var(--text-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease-out, box-shadow 0.2s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        #cursor-follower.hovering {
+            transform: translate(-50%, -50%) scale(5);
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: invert(100%);
+        }
+
+        #loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            transition: opacity 1s ease, filter 1s ease;
+        }
+
+        .advanced-typing {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 2px;
+            transition: text-shadow 0.6s ease;
+        }
+
+        .type-char {
+            display: inline-block;
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            background: linear-gradient(180deg, #ffffff 0%, #d4d4d8 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            opacity: 0;
+            filter: blur(8px);
+            transform: translateY(20px);
+            animation: charFadeIn 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+            animation-delay: calc(var(--i) * 0.08s);
+        }
+
+        @keyframes charFadeIn { 
+            0% { opacity: 0; filter: blur(8px); transform: translateY(20px); } 
+            100% { opacity: 1; filter: blur(0); transform: translateY(0); } 
+        }
+
+        #loader.glow-phase .advanced-typing {
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 
+                         0 0 30px rgba(255, 255, 255, 0.2);
+        }
+
+        #main-content {
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 2rem;
+            transform: scale(0.95) translateY(20px);
+            transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        #main-content.approach {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .container {
+            max-width: 680px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .hero {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            margin-bottom: 1rem;
+            background: linear-gradient(180deg, #ffffff 0%, #d4d4d8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .description {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            margin-bottom: 3.5rem;
+        }
+
+        .strong-text {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .status-card {
+            background-color: var(--box-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transform-style: preserve-3d;
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, border-color 0.3s ease;
+            will-change: transform;
+        }
+
+        .status-header {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            transform: translateZ(30px);
+            display: inline-block;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: #27272a;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            transform: translateZ(40px);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #ffffff;
+            width: 0%; 
+            border-radius: 999px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            transition: width 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .status-details {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            transform: translateZ(30px);
+        }
+
+        .duration {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .audio-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(17, 17, 17, 0.8);
+            border: 1px solid var(--border-color);
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            cursor: pointer;
+        }
+
+        .audio-toggle:hover {
+            background: #27272a;
+            transform: scale(1.1);
+        }
+
+        .audio-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        @media (max-width: 480px) {
+            .type-char { font-size: 2.5rem; }
+            .hero { font-size: 3rem; }
+            .description { font-size: 1rem; }
+            .status-card { transform: none !important; }
+            * { cursor: auto !important; }
+            #cursor-follower { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="cursor-follower"></div>
+
+    <div id="loader">
+        <div id="advancedTypewriter" class="advanced-typing"></div>
+    </div>
+
+    <div id="main-content">
+        <div class="container">
+            <h1 class="hero">LuauGuard</h1>
+            <p class="description">
+                The next generation best private obfuscator for Roblox Luau. <br/>
+                The next Luraph. <span class="strong-text">LuauGuard Team Forever.</span>
+            </p>
+
+            <div class="status-card" id="status-card">
+                <div class="status-header">Maintenance Protocol Active</div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="status-progress"></div>
+                </div>
+                <div class="status-details">
+                    <span>Incoming</span>
+                    <span class="duration">~ 4 Weeks</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/16/audio_276a09ca29.mp3?filename=crickets-and-insects-in-the-night-9092.mp3" type="audio/mpeg">
+    </audio>
+
+    <button class="audio-toggle" id="audio-toggle" title="Toggle Sound">
+        <svg id="icon-muted" viewBox="0 0 24 24">
+            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+        </svg>
+        <svg id="icon-playing" viewBox="0 0 24 24" style="display: none;">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+    </button>
+
+    <script>
+        const follower = document.getElementById('cursor-follower');
+        document.addEventListener('mousemove', (e) => {
+            follower.style.left = e.clientX + 'px';
+            follower.style.top = e.clientY + 'px';
+        });
+
+        const interactables = document.querySelectorAll('.status-card, .audio-toggle');
+        interactables.forEach(el => {
+            el.addEventListener('mouseenter', () => follower.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => follower.classList.remove('hovering'));
+        });
+
+        const audio = document.getElementById('bg-music');
+        const audioBtn = document.getElementById('audio-toggle');
+        const iconMuted = document.getElementById('icon-muted');
+        const iconPlaying = document.getElementById('icon-playing');
+
+        audio.volume = 0.4;
+        
+        function initAudio() {
+            audio.play().catch(() => {});
+            document.removeEventListener('click', initAudio);
+            document.removeEventListener('touchstart', initAudio);
+        }
+        
+        document.addEventListener('click', initAudio);
+        document.addEventListener('touchstart', initAudio);
+
+        audioBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (audio.paused) {
+                audio.play();
+                iconMuted.style.display = 'none';
+                iconPlaying.style.display = 'block';
+            } else {
+                audio.pause();
+                iconMuted.style.display = 'block';
+                iconPlaying.style.display = 'none';
+            }
+        });
+
+        const card = document.getElementById('status-card');
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left; 
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = ((y - centerY) / centerY) * -10; 
+            const rotateY = ((x - centerX) / centerX) * 10;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            card.style.boxShadow = `0 20px 50px rgba(0, 0, 0, 0.7)`;
+            card.style.borderColor = '#3f3f46';
+            card.style.transition = 'none'; 
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            card.style.boxShadow = `0 10px 40px rgba(0, 0, 0, 0.5)`;
+            card.style.borderColor = '#27272a';
+            card.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, border-color 0.3s ease'; 
+        });
+
+        const textToType = "LuauGuard";
+        const container = document.getElementById("advancedTypewriter");
+        const loader = document.getElementById('loader');
+        const mainContent = document.getElementById('main-content');
+        const progressBar = document.getElementById('status-progress');
+
+        function runAdvancedTyping() {
+            container.innerHTML = '';
+            
+            textToType.split('').forEach((ch, i) => {
+                const span = document.createElement('span');
+                span.textContent = ch === ' ' ? '\u00A0' : ch;
+                span.className = 'type-char';
+                span.style.setProperty('--i', i);
+                container.appendChild(span);
+            });
+
+            const timeToFinishTyping = (textToType.length * 80) + 350;
+            setTimeout(startTransition, timeToFinishTyping + 300); 
+        }
+
+        function startTransition() {
+            loader.classList.add('glow-phase');
+
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                loader.style.filter = 'blur(15px)'; 
+
+                setTimeout(() => loader.style.display = 'none', 1000); 
+
+                mainContent.classList.add('approach');
+                
+                setTimeout(() => {
+                    progressBar.style.width = '15%'; 
+                }, 600);
+
+            }, 800); 
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(runAdvancedTyping, 300); 
+        });
+    </script>
+</body>
+</html>
